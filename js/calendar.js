@@ -38,7 +38,7 @@ function(ready, lang, has, arr, fx, on, locale, parser, dom, domConstruct, Memor
 
 		// set event items from db to calendar widget
 		var getData = function(){
-			var def = xhr("http://localhost:8888/calendar/getData.php", {
+			var def = xhr("http://localhost:8888/calendar/webServices/getData.php", {
 				handleAs: "json",
 				method: "get"
 				}, true);
@@ -234,7 +234,7 @@ function(ready, lang, has, arr, fx, on, locale, parser, dom, domConstruct, Memor
 			item.startTime = item.startTime.getTime();
 			item.endTime = item.endTime.getTime();
 
-			xhr.post("http://localhost:8888/calendar/postData.php", {
+			xhr.post("http://localhost:8888/calendar/webServices/postData.php", {
 		        data: item,
 		        handleAs: "json"
 		    }).then(function(id){
