@@ -11,7 +11,7 @@
 			@import "styles/calendar.css";
 		</style>
 		<script type="text/javascript"
-						data-dojo-config="async: true, parseOnLoad: true"
+						data-dojo-config="async: true, parseOnLoad: true, locale: 'sk'"
 		 				src="http://ajax.googleapis.com/ajax/libs/dojo/1.8.1/dojo/dojo.js.uncompressed.js"></script>
 		<script type="text/javascript" src="js/calendar.js"></script>
 	</head>
@@ -32,7 +32,7 @@
 				<div style="margin-top:10px"><span class="propertyTitle">Start:</span></div>
 				<div>
 					<div data-dojo-id="itemStartDateEditor" data-dojo-type="dijit.form.DateTextBox" style="width:90px;"  data-dojo-props="disabled:false"></div>
-					<div data-dojo-id="itemStartTimeEditor" data-dojo-type="dijit.form.TimeTextBox" style="width:80px;" data-dojo-props="disabled:false" ></div>
+					<div data-dojo-id="itemStartTimeEditor" data-dojo-type="dijit.form.TimeTextBox" style="width:80px;" data-dojo-props="disabled:false"></div>
 				</div>
 				<div style="margin-top:10px"><span class="propertyTitle">End:</span></div>
 				<div>
@@ -54,7 +54,7 @@
 		</div>
 		<div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="splitter:false, region:'center'">
 			<div data-dojo-id="calendar" data-dojo-type="dojox.calendar.Calendar"
-			style="position:absolute;left:10px;top:10px;bottom:30px;right:10px">
+			style="position:absolute;left:10px;top:10px;bottom:30px;right:10px" data-dojo-props="dateInterval:'week', columnViewProps:{minHours:9, maxHours: 23}">
 			<div data-dojo-type="dijit.Menu" data-dojo-id="calendarContextMenu" style="display: none;">
 				<div data-dojo-type="dijit.MenuItem" data-dojo-id="contextMenuDelete" data-dojo-props="iconClass:'dijitIcon dijitIconDelete'">Delete</div>
 			</div>

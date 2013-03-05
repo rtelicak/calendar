@@ -12,7 +12,7 @@
 
 	// create query and execute it
 	$query = "UPDATE events SET summary='$summary', startTime='$startTime', endTime='$endTime' WHERE id=".$id."";
-	// $result = mysql_query($query,$link) or die('Errant query:  '.$query);
+	$result = mysql_query($query,$link) or die('Errant query:  '.$query);
 
 	header('Content-type: application/json', true, 200);
 	// send an whole item to client

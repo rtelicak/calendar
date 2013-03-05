@@ -73,6 +73,26 @@ function(ready, lang, has, arr, fx, on, locale, parser, dom, domConstruct, Memor
 			}
 		}();
 
+		// itemStartTimeEditor.on("change", function(){
+		// 	var constraints = {
+		// 		min : "3:00"
+		// 	};
+		// 		// min : itemStartTimeEditor.get("value")
+
+		// 	itemEndTimeEditor.constraints = constraints;
+		// });
+
+		// var setDefaultSetting = function(){
+		// 	var constraints = {
+  //               timePattern: 'HH:mm:ss',
+  //               clickableIncrement: 'T00:15:00',
+  //               visibleIncrement: 'T00:15:00',
+  //               visibleRange: 'T01:00:00'
+  //           };
+
+		// 	itemStartTimeEditor.constraints = constraints;
+		// }();
+
 		// create event items from database data
 		var populateItems = function(data){
 			var events = [];
