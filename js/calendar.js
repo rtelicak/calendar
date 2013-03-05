@@ -33,6 +33,15 @@ function(ready, lang, has, arr, fx, on, locale, parser, dom, domConstruct, Memor
 
 	ready(function() {
 
+		// list of form widgets
+		var widgets = [
+			itemSummaryEditor, 
+			itemStartDateEditor, 
+			itemStartTimeEditor, 
+			itemEndDateEditor, 
+			itemEndTimeEditor
+		];
+
 		var someData = [];
 		var startOfWeek = new Date();
 
@@ -53,8 +62,15 @@ function(ready, lang, has, arr, fx, on, locale, parser, dom, domConstruct, Memor
 						console.warn("No data in db.");
 					}
 				}, function(err){
-					console.err(err);
+					console.error(err);
 				});
+		}();
+
+		var disableWidgets = function(){
+			for (var i = 0; i < widgets.length; i++){
+				widgets[i].set("disabled", true);
+				widgets[i].reset();
+			}
 		}();
 
 		// create event items from database data
@@ -73,39 +89,6 @@ function(ready, lang, has, arr, fx, on, locale, parser, dom, domConstruct, Memor
 			return events;
 		}
 
-		// Enable creation of event interactively by ctrl clicking grid.
-		var createItem = function(view, d, e) {
-
-			// create item by maintaining control key
-			if (!e.ctrlKey || e.shiftKey || e.altKey || (!cal1 && !cal2)) {
-				return null;
-			}
-
-			// create a new event
-			var start, end;
-			var colView = calendar.columnView;
-			var cal = calendar.dateModule;
-
-			if (view == colView) {
-				start = calendar.floorDate(d, "minute", colView.timeSlotDuration);
-				end = cal.add(start, "minute", colView.timeSlotDuration);
-			} else {
-				start = calendar.floorToDay(d);
-				end = cal.add(start, "day", 1);
-			}
-
-			var item = {
-				id : id,
-				summary : "New event " + id,
-				startTime : start,
-				endTime : end,
-			};
-
-			id++;
-
-			return item;
-		}
-
 		// show context menu on right clicking an event
 		calendar.on("itemContextMenu", function(e) {
 			dojo.stopEvent(e.triggerEvent);
@@ -118,52 +101,26 @@ function(ready, lang, has, arr, fx, on, locale, parser, dom, domConstruct, Memor
 			});
 		});
 
-		contextMenuDelete.on("click", function() {
-			arr.forEach(calendar.selectedItems, function(item) {
-				calendar.store.remove(item.id);
-			});
-		});
-
-		// refresh item panel on event selection.
-		var editedItem;
-
+		// handle event selection changed
 		var selectionChanged = function(item) {
 
 			var itemNull = item == null;
-
-			// widgets = [
-			// 	itemSummaryEditor,
-			// 	itemStartDateEditor,
-			// 	itemStartTimeEditor,
-			// 	itemEndDateEditor,
-			// 	itemEndTimeEditor,
-			// 	//calendarEditor,
-			// 	deleteItemButton,
-			// 	saveBtn
-			// ];
+			editedItem = itemNull ? null : lang.mixin({}, item);
 
 			arr.forEach(widgets, function(w) {
 				w.set("disabled", itemNull);
 				w.set("value", null, false);
 			});
 
-			editedItem = itemNull ? null : lang.mixin({}, item);
-
 			if (!itemNull) {
-
-				// var allDay = item.allDay === true;
-
-				// itemStartTimeEditor.set("disabled", allDay);
-				// itemEndTimeEditor.set("disabled", allDay);
-
 				itemSummaryEditor.set("value", item.summary);
 				itemStartDateEditor.set("value", item.startTime);
 				itemStartTimeEditor.set("value", item.startTime);
 				itemEndDateEditor.set("value", item.endTime);
 				itemEndTimeEditor.set("value", item.endTime);
-				//calendarEditor.set("value", item.calendar == "cal1" ? "Calendar 1" : "Calendar 2");
 			}
 		}
+
 
 		calendar.on("change", function(e) {
 			selectionChanged(e.newValue);
@@ -183,17 +140,9 @@ function(ready, lang, has, arr, fx, on, locale, parser, dom, domConstruct, Memor
 			return date;
 		};
 
-		// list of form widgets
-		var widgets = [
-			itemSummaryEditor, 
-			itemStartDateEditor, 
-			itemStartTimeEditor, 
-			itemEndDateEditor, 
-			itemEndTimeEditor
-		];
-
 		// handle click on newBtn, prepare form for new event
 		newBtn.on("click", function(e) {
+			// mock
 			// var date = new Date();
 			// date.setHours(date.getHours() + 1);
 			// itemSummaryEditor.set("value", "ccc");
@@ -201,7 +150,7 @@ function(ready, lang, has, arr, fx, on, locale, parser, dom, domConstruct, Memor
 			// itemStartTimeEditor.set("value", new Date());
 			// itemEndDateEditor.set("value", new Date());
 			// itemEndTimeEditor.set("value", date);
-
+			editedItem = null;
 			for (var i = 0; i < widgets.length; i++){
 				widgets[i].set("disabled", false);
 				widgets[i].reset();
@@ -221,7 +170,7 @@ function(ready, lang, has, arr, fx, on, locale, parser, dom, domConstruct, Memor
 		}
 
 		// get item from form widgets
-		var updateItem = function(item){
+		var fetchItemFromForm = function(item){
 			item.summary = itemSummaryEditor.get("value");
 			item.startTime = mergeDateTime(true);
 			item.endTime = mergeDateTime(false);
@@ -229,8 +178,54 @@ function(ready, lang, has, arr, fx, on, locale, parser, dom, domConstruct, Memor
 			return item;
 		};
 
-		// create new event, save to db and to store bidned to calendar widget
-		var postEvent = function(item){
+		saveBtn.on("click", function() {
+			var item = editedItem || null;
+			// update item
+			if (item) {
+				var item = fetchItemFromForm(item);
+				updateItem(item);
+			}
+			// create new item
+			else if (!isFormEmpty()){
+				var item = fetchItemFromForm({});
+				createItem(item);
+			}
+		});
+
+		contextMenuDelete.on("click", function() {
+			var item = calendar.selectedItems;
+			if (calendar.selectedItems && calendar.selectedItems.length == 1){
+				deleteItem(calendar.selectedItems);
+			}
+		});
+
+
+		deleteItemButton.on("click", function() {
+			if (editedItem != null) {
+				deleteItem(editedItem);
+			}
+		});
+
+		// edit event, save it to db and to store
+		var updateItem = function(item){
+			item.startTime = item.startTime.getTime();
+			item.endTime = item.endTime.getTime();
+
+			xhr.post("http://localhost:8888/calendar/webServices/updateData.php", {
+		        data: item,
+		        handleAs: "json"
+		    }).then(function(id){
+		    	var item = fetchItemFromForm(editedItem);
+		    	item.id = id;
+				calendar.store.put(item);
+		    },
+		    function(error){
+		    	console.error(error);
+		    });
+		};
+
+		// create new event, save it to db and to store
+		var createItem = function(item){
 			delete item.id;
 			item.startTime = item.startTime.getTime();
 			item.endTime = item.endTime.getTime();
@@ -241,36 +236,28 @@ function(ready, lang, has, arr, fx, on, locale, parser, dom, domConstruct, Memor
 		    }).then(function(id){
 		    	var item = {};
 		    	item.id = id;
-		    	updateItem(item);
+		    	fetchItemFromForm(item);
 				calendar.store.add(item);
+				editedItem = item;
 		    },
 		    function(error){
-		    	console.err(error);
+		    	console.error(error);
 		    });
 		};
 
-		saveBtn.on("click", function(value) {
-			// update item
-			if (editedItem != null ) {
-				// editedItem.summary = itemSummaryEditor.get("value");
-				// editedItem.startTime = mergeDateTime(true);
-				// editedItem.endTime = mergeDateTime(false);
-				//delete editedItem.allDay;
-				var item = updateItem(editedItem);
-				calendar.store.put(item);
+		var deleteItem = function(item){
+			if (item){
+				xhr.post("http://localhost:8888/calendar/webServices/deleteData.php", {
+			        data: editedItem,
+			        handleAs: "json"
+			    }).then(function(id){
+					calendar.store.remove(id);
+					},
+					function(error){
+						console.error(error);
+					});
 			}
-			// create new item
-			else if (!isFormEmpty()){
-				var item = updateItem({});
-				postEvent(item);
-			}
-		});
-
-		deleteItemButton.on("click", function(value) {
-			if (editedItem != null) {
-				calendar.store.remove(editedItem.id);
-			}
-		});
+		};
 
 		fx.fadeOut({
 			node : "loadingPanel",
