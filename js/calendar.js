@@ -73,25 +73,39 @@ function(ready, lang, has, arr, fx, on, locale, parser, dom, domConstruct, Memor
 			}
 		}();
 
-		// itemStartTimeEditor.on("change", function(){
-		// 	var constraints = {
-		// 		min : "3:00"
-		// 	};
-		// 		// min : itemStartTimeEditor.get("value")
+		// set time constraints
+		itemStartTimeEditor.on("change", function(){
+			if (itemStartTimeEditor.get("value")){
+				itemEndTimeEditor.constraints.min = itemStartTimeEditor.get("value");
+			}else{
+				delete itemEndTimeEditor.constraints.min;
+			}
+		});
 
-		// 	itemEndTimeEditor.constraints = constraints;
-		// });
+		itemEndTimeEditor.on("change", function(){
+			if (itemEndTimeEditor.get("value")){
+				itemStartTimeEditor.constraints.max = itemEndTimeEditor.get("value");
+			}else{
+				delete itemStartTimeEditor.constraints.max;
+			}
+		});
 
-		// var setDefaultSetting = function(){
-		// 	var constraints = {
-  //               timePattern: 'HH:mm:ss',
-  //               clickableIncrement: 'T00:15:00',
-  //               visibleIncrement: 'T00:15:00',
-  //               visibleRange: 'T01:00:00'
-  //           };
+		// set date constraints
+		itemStartDateEditor.on("change", function(){
+			if (itemStartDateEditor.get("value")){
+				itemEndDateEditor.constraints.min = itemStartDateEditor.get("value");
+			}else{
+				delete itemEndDateEditor.constraints.min;
+			}
+		});
 
-		// 	itemStartTimeEditor.constraints = constraints;
-		// }();
+		itemEndDateEditor.on("change", function(){
+			if (itemEndDateEditor.get("value")){
+				itemStartDateEditor.constraints.max = itemEndDateEditor.get("value");
+			}else{
+				delete itemStartDateEditor.constraints.max;
+			}
+		});
 
 		// create event items from database data
 		var populateItems = function(data){
